@@ -72,6 +72,15 @@ def main() -> None:
     rate = df["failed_within_7d"].mean()
     print(f"wrote {args.out}  rows={len(df)}  machines={df.machine_id.nunique()}  positive_rate={rate:.3f}")
 
+    import os
+    if os.getenv("PIPELINE_UPLOAD") == "1":
+        from src import config
+        from cloudlayer.factory import get_adapter
+
+        adapter = get_adapter(config.load())
+        uri = adapter.upload(str(args.out), "lab5/raw/sensors.csv")
+        print(f"Uploaded to GCS: {uri}")
+
 
 if __name__ == "__main__":
     main()

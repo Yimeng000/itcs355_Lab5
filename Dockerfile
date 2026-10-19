@@ -38,10 +38,12 @@ RUN mkdir -p /app/data/raw /app/reports \
 COPY --chown=runner:runner src/ ./src/
 COPY --chown=runner:runner cloudlayer/ ./cloudlayer/
 COPY --chown=runner:runner scripts/ ./scripts/
+COPY --chown=runner:runner tests/ ./tests/
 
 USER runner
 
 # Credentials NEVER enter an image layer. They arrive at runtime from SECRET_STORE_PATH
 # or from the platform's identity. If you find yourself adding an ARG for a key, stop.
-ENTRYPOINT ["python", "-m", "src.train"]
-CMD ["--n-estimators", "200", "--max-depth", "8"]
+# Default command for standalone training.
+# KFP pipeline steps can override this command.
+CMD ["python", "-m", "src.train", "--n-estimators", "200", "--max-depth", "8"]

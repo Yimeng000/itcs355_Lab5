@@ -27,7 +27,23 @@ def main() -> int:
     ap.add_argument("--metric", default="test_roc_auc")
     ap.add_argument("--incumbent", type=float, default=None,
                     help="current production score; omit to read from the registry")
+    ap.add_argument("--decision-out", type=Path, default=None)
     args = ap.parse_args()
+
+    def finish(passed: bool) -> int:
+        if args.decision_out:
+            args.decision_out.parent.mkdir(parents=True, exist_ok=True)
+            args.decision_out.write_text("pass" if passed else "fail")
+        return 0 if args.decision_out else (0 if passed else 1)
+
+    if not args.metrics.exists():
+        from src import config
+        from cloudlayer.factory import get_adapter
+
+        cfg = config.load()
+        adapter = get_adapter(cfg)
+        uri = f"{cfg.blob_uri.rstrip('/')}/lab5/metrics/{args.metrics.name}"
+        adapter.download(uri, str(args.metrics))
 
     payload = json.loads(args.metrics.read_text())
     candidate = float(payload[args.metric])
@@ -35,7 +51,7 @@ def main() -> int:
 
     if candidate < MIN_ABSOLUTE:
         print(f"GATE FAIL  below absolute floor {MIN_ABSOLUTE}")
-        return 1
+        return finish(False)
 
     incumbent = args.incumbent
     if incumbent is None:
@@ -43,17 +59,18 @@ def main() -> int:
         # assuming there is no incumbent. A first run legitimately has none.
         print("no incumbent supplied — treating as first registration")
         print("GATE PASS")
-        return 0
+        return finish(True)
 
     delta = candidate - incumbent
     print(f"incumbent {incumbent:.4f}  delta {delta:+.4f}  required {MIN_IMPROVEMENT:+.4f}")
     if delta < MIN_IMPROVEMENT:
         print("GATE FAIL  improvement within noise; not registering")
-        return 1
+        return finish(False)
 
     print("GATE PASS")
-    return 0
+    return finish(True)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    code = main()
+    raise SystemExit(code)

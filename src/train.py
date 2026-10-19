@@ -70,7 +70,7 @@ def main() -> None:
     seed = seeds.set_all(args.seed)
 
     if not cfg.raw_path.exists():
-        remote_data = f"{cfg.blob_uri.rstrip('/')}/lab2/sensors.csv"
+        remote_data = f"{cfg.blob_uri.rstrip('/')}/lab5/raw/sensors.csv"
         adapter.download(remote_data, str(cfg.raw_path))
 
     df = data.load_raw(cfg.raw_path)
@@ -143,10 +143,10 @@ def main() -> None:
             args.metrics_out.write_text(json.dumps(
                 {"seed": seed, "data_fingerprint": fingerprint, **metrics}, indent=2))
 
-        adapter.upload(
-            str(args.metrics_out),
-            f"lab2/metrics/{args.metrics_out.name}",
-        )
+            adapter.upload(
+                str(args.metrics_out),
+                f"lab5/metrics/{args.metrics_out.name}",
+            )
 
 
 if __name__ == "__main__":

@@ -153,10 +153,11 @@ class GcpAdapter(CloudAdapter):
         model = aiplatform.Model.upload(
             display_name=name,
             artifact_uri=model_uri,
-            serving_container_image_uri=(
-                "asia-docker.pkg.dev/vertex-ai/"
-                "prediction/sklearn-cpu.1-6:latest"
-            ),
+            # serving_container_image_uri=(
+            #     "asia-docker.pkg.dev/vertex-ai/"
+            #     "prediction/sklearn-cpu.1-6:latest"
+            # ),
+            serving_container_image_uri=self.cfg.serving_image_uri,
             parent_model=parent_model,
             is_default_version=False if parent_model else True,
             sync=True,

@@ -24,7 +24,7 @@ RAW = config.REPO_ROOT / "data" / "raw" / "sensors.csv"
 @pytest.fixture(scope="module")
 def df():
     if not RAW.exists():
-        pytest.skip("data/raw/sensors.csv missing — run `make data` or `dvc pull` first")
+        pytest.fail("Data validation failed: data/raw/sensors.csv is missing")
     return data.load_raw(RAW)
 
 
