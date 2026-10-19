@@ -1,5 +1,6 @@
 from src import config, seeds
 from cloudlayer.factory import get_adapter
+from pathlib import Path
 
 cfg = config.load()
 adapter = get_adapter(cfg)
@@ -15,8 +16,6 @@ version = adapter.register_model(
 )
 
 print(f"Registered model version: {version}")
-
-from pathlib import Path
 
 version_file = Path("/tmp/lab5-model-version.txt")
 version_file.write_text(str(version))
