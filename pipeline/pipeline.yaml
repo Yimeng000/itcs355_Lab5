@@ -24,7 +24,7 @@ steps:
 
   - name: train
     image: "${TRAINING_IMAGE_URI}"
-    command: ["python", "-m", "src.train", "--metrics-out", "/outputs/metrics.json"]
+    command: ["python", "scripts/run_spot_training.py"]
     depends_on: [validate]
     instance: "${TRAIN_INSTANCE}"
     spot: true
@@ -32,7 +32,7 @@ steps:
 
   - name: evaluate
     image: "${TRAINING_IMAGE_URI}"
-    command: ["python", "scripts/evaluation_gate.py", "--metrics", "/outputs/metrics.json", "--decision-out", "/outputs/gate_decision.txt"]
+    command: ["python", "scripts/evaluation_gate.py", "--metrics", "/outputs/metrics.json", "--decision-out", "/tmp/gate_decision.txt"]
     depends_on: [train]
     outputs: [gate_decision]
 

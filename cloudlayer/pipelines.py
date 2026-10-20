@@ -55,7 +55,7 @@ def make_gcp_gate_component(step: dict[str, Any]):
             image=step["image"],
             command=[
                 "python", "scripts/evaluation_gate.py",
-                "--metrics", "/outputs/metrics.json",
+                "--metrics", "/tmp/metrics.json",
                 "--decision-out", decision,
             ],
         )
@@ -92,6 +92,8 @@ def compile_gcp(spec: dict[str, Any]):
         "MLFLOW_TRACKING_URI": cfg.mlflow_tracking_uri,
         "MODEL_REGISTRY_NAME": cfg.model_registry_name,
         "IDENTITY_REF": cfg.identity_ref,
+        "TRAINING_IMAGE_URI": cfg.training_image_uri,
+        "SERVING_IMAGE_URI": cfg.serving_image_uri,
     }
 
     def configure_task(task):

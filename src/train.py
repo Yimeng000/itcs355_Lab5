@@ -60,6 +60,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--run-name", default=None)
     p.add_argument("--metrics-out", type=Path, default=None,
                    help="Write final metrics as JSON. Used by `make verify`.")
+    p.add_argument("--checkpoint", action="store_true")
     return p.parse_args()
 
 
@@ -110,14 +111,49 @@ def main() -> None:
             "n_test_rows": len(test_df),
         })
 
+        checkpoint_path = cfg.reports_dir / "lab5-checkpoint.joblib"
+        checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+
         model = RandomForestClassifier(
             n_estimators=args.n_estimators,
             max_depth=args.max_depth,
             min_samples_leaf=args.min_samples_leaf,
             random_state=seed,
             n_jobs=-1,
+            warm_start=args.checkpoint,
         )
-        model.fit(train_df[data.FEATURES], train_df[data.TARGET])
+        if args.checkpoint:
+            checkpoint_uri = (
+                f"{cfg.blob_uri.rstrip('/')}/"
+                f"lab5/checkpoints/seed-{seed}/model.joblib"
+            )
+
+            try:
+                adapter.download(checkpoint_uri, str(checkpoint_path))
+            except Exception as e:
+                if "404" not in str(e):
+                    raise
+            else:
+                model = joblib.load(checkpoint_path)
+                print(f"Resuming from {model.n_estimators} trees")
+            completed = len(model.estimators_) if hasattr(model, "estimators_") else 0
+            batch_size = 50
+            for n in range(completed + batch_size, args.n_estimators + batch_size, batch_size):
+                n = min(n, args.n_estimators)
+                if n <= completed:
+                    break
+                model.n_estimators = min(n, args.n_estimators)
+                model.fit(train_df[data.FEATURES], train_df[data.TARGET])
+                joblib.dump(model, checkpoint_path)
+                adapter.upload(
+                    str(checkpoint_path),
+                    f"lab5/checkpoints/seed-{seed}/model.joblib",
+                )
+                print(f"Checkpoint saved: {model.n_estimators} trees")
+                if n >= args.n_estimators:
+                    break
+        else:
+            model.fit(train_df[data.FEATURES], train_df[data.TARGET])
 
         metrics: dict[str, float] = {}
         for name, part in (("val", val_df), ("test", test_df)):
@@ -132,7 +168,7 @@ def main() -> None:
 
         model_uri = adapter.upload(
             str(model_path),
-            f"lab2/models/seed-{seed}/model.joblib",
+            f"lab5/models/seed-{seed}/model.joblib",
         )
 
         print(f"model_uri={model_uri}")

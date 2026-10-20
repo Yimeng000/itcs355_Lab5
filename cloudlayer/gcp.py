@@ -84,14 +84,26 @@ class GcpAdapter(CloudAdapter):
         job = aiplatform.CustomContainerTrainingJob(
             display_name="itcs355-lab2-training",
             container_uri=image_uri,
+            command=["python", "-m", "src.train"],
             staging_bucket=f"gs://{self.cfg.project_id}",
             labels=self.cfg.tags(2),
         )
 
         job.run(
-            args=[f"--{k.replace('_', '-')}={v}" for k, v in args.items()],
+            args=[
+                item
+                for k, v in args.items()
+                for item in (
+                    [f"--{k.replace('_', '-')}"]
+                    if v is True
+                    else ([] if v is False else [f"--{k.replace('_', '-')}={v}"])
+                )
+            ],
             machine_type="e2-standard-4",
             replica_count=1,
+            service_account=(
+                f"lab5-pipeline@{self.cfg.project_id}.iam.gserviceaccount.com"
+            ),
             scheduling_strategy=gca_custom_job.Scheduling.Strategy.SPOT,
             environment_variables={
                 "CLOUD_PROVIDER": self.cfg.provider,
@@ -102,6 +114,8 @@ class GcpAdapter(CloudAdapter):
                 "MLFLOW_TRACKING_URI": "sqlite:////app/reports/mlflow.db",
                 "MODEL_REGISTRY_NAME": self.cfg.model_registry_name,
                 "IDENTITY_REF": self.cfg.identity_ref,
+                "TRAINING_IMAGE_URI": self.cfg.training_image_uri,
+                "SERVING_IMAGE_URI": self.cfg.serving_image_uri,
             },
             sync=False,
         )
@@ -170,7 +184,6 @@ class GcpAdapter(CloudAdapter):
             project=self.cfg.project_id,
             location=self.cfg.region,
         )
-
     
         models = aiplatform.Model.list(
             filter=f'display_name="{name}"',
@@ -198,11 +211,23 @@ class GcpAdapter(CloudAdapter):
             location=self.cfg.region,
         )
 
-        endpoint_obj = aiplatform.Endpoint.create(
-            display_name=endpoint,
-            labels=self.cfg.tags(3),
-            sync=True,
+        existing = aiplatform.Endpoint.list(
+            filter=f'display_name="{endpoint}"'
         )
+
+        if existing:
+            endpoint_obj = existing[0]
+            for deployed in endpoint_obj.gca_resource.deployed_models:
+                if deployed.display_name == f"{endpoint}-v{model_ref}":
+                    print(f"Model version {model_ref} already deployed.")
+                    self.emit_metric("model_version", float(model_ref))
+                    return endpoint_obj.resource_name
+        else:
+            endpoint_obj = aiplatform.Endpoint.create(
+                display_name=endpoint,
+                labels=self.cfg.tags(5),
+                sync=True,
+            )
     
         models = aiplatform.Model.list(
          filter=f'display_name="{self.cfg.model_registry_name}"',

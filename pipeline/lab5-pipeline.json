@@ -1,0 +1,473 @@
+{
+  "components": {
+    "comp-condition-1": {
+      "dag": {
+        "tasks": {
+          "run-step-4": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-run-step-4"
+            },
+            "taskInfo": {
+              "name": "run-step-4"
+            }
+          },
+          "run-step-5": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-run-step-5"
+            },
+            "dependentTasks": [
+              "run-step-4"
+            ],
+            "taskInfo": {
+              "name": "run-step-5"
+            }
+          }
+        }
+      },
+      "inputDefinitions": {
+        "parameters": {
+          "pipelinechannel--gate-decision": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-gate": {
+      "executorLabel": "exec-gate",
+      "outputDefinitions": {
+        "parameters": {
+          "decision": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    },
+    "comp-run-step": {
+      "executorLabel": "exec-run-step"
+    },
+    "comp-run-step-2": {
+      "executorLabel": "exec-run-step-2"
+    },
+    "comp-run-step-3": {
+      "executorLabel": "exec-run-step-3"
+    },
+    "comp-run-step-4": {
+      "executorLabel": "exec-run-step-4"
+    },
+    "comp-run-step-5": {
+      "executorLabel": "exec-run-step-5"
+    }
+  },
+  "deploymentSpec": {
+    "executors": {
+      "exec-gate": {
+        "container": {
+          "command": [
+            "python",
+            "scripts/evaluation_gate.py",
+            "--metrics",
+            "/tmp/metrics.json",
+            "--decision-out",
+            "{{$.outputs.parameters['decision'].output_file}}"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      },
+      "exec-run-step": {
+        "container": {
+          "command": [
+            "sh",
+            "-c",
+            "PIPELINE_UPLOAD=1 python scripts/make_dataset.py"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      },
+      "exec-run-step-2": {
+        "container": {
+          "command": [
+            "sh",
+            "-c",
+            "python scripts/prepare_validation.py && pytest -q tests/test_data.py"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      },
+      "exec-run-step-3": {
+        "container": {
+          "command": [
+            "python",
+            "scripts/run_spot_training.py"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      },
+      "exec-run-step-4": {
+        "container": {
+          "command": [
+            "python",
+            "scripts/register.py"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      },
+      "exec-run-step-5": {
+        "container": {
+          "command": [
+            "python",
+            "scripts/deploy.py",
+            "--target",
+            "staging"
+          ],
+          "env": [
+            {
+              "name": "CLOUD_PROVIDER",
+              "value": "gcp"
+            },
+            {
+              "name": "PROJECT_ID",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "REGION",
+              "value": "asia-southeast1"
+            },
+            {
+              "name": "BLOB_URI",
+              "value": "gs://itcs355-6688176/itcs355"
+            },
+            {
+              "name": "CONTAINER_REGISTRY",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355"
+            },
+            {
+              "name": "MLFLOW_TRACKING_URI",
+              "value": "sqlite:///mlflow.db"
+            },
+            {
+              "name": "MODEL_REGISTRY_NAME",
+              "value": "itcs355-6688176"
+            },
+            {
+              "name": "IDENTITY_REF",
+              "value": "user:18987260242yimeng@gmail.com"
+            },
+            {
+              "name": "TRAINING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+            },
+            {
+              "name": "SERVING_IMAGE_URI",
+              "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            }
+          ],
+          "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
+        }
+      }
+    }
+  },
+  "pipelineInfo": {
+    "name": "itcs355-training-pipeline"
+  },
+  "root": {
+    "dag": {
+      "tasks": {
+        "condition-1": {
+          "componentRef": {
+            "name": "comp-condition-1"
+          },
+          "dependentTasks": [
+            "gate"
+          ],
+          "inputs": {
+            "parameters": {
+              "pipelinechannel--gate-decision": {
+                "taskOutputParameter": {
+                  "outputParameterKey": "decision",
+                  "producerTask": "gate"
+                }
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "condition-1"
+          },
+          "triggerPolicy": {
+            "condition": "inputs.parameter_values['pipelinechannel--gate-decision'] == 'pass'"
+          }
+        },
+        "gate": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-gate"
+          },
+          "dependentTasks": [
+            "run-step-3"
+          ],
+          "taskInfo": {
+            "name": "gate"
+          }
+        },
+        "run-step": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-run-step"
+          },
+          "taskInfo": {
+            "name": "run-step"
+          }
+        },
+        "run-step-2": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-run-step-2"
+          },
+          "dependentTasks": [
+            "run-step"
+          ],
+          "taskInfo": {
+            "name": "run-step-2"
+          }
+        },
+        "run-step-3": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-run-step-3"
+          },
+          "dependentTasks": [
+            "run-step-2"
+          ],
+          "taskInfo": {
+            "name": "run-step-3"
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "2.1.0",
+  "sdkVersion": "kfp-2.16.1"
+}
