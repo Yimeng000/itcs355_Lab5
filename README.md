@@ -195,3 +195,15 @@ Three service accounts separate training, serving, and CI/CD responsibilities.
 **Conclusion:** Removing the serving identity's object-read permission caused the artifact access operation to fail. The experiment demonstrates an enforced IAM permission boundary. The original serving permission was restored after testing.
 
 **Scope note:** The IAM roles above are the observed configuration. Further privilege reduction may be possible, particularly for the broad `roles/aiplatform.user` role. The serving identity's object-read permission is scoped to the project bucket rather than exclusively to the Lab 5 object prefix.
+
+### Lab 5 Serving Identity Delegation
+
+The dedicated serving identity is
+`lab5-serving@itcs355-6688176.iam.gserviceaccount.com`.
+
+The `roles/iam.serviceAccountUser` role is granted on this service account to:
+
+- `github-actions@itcs355-6688176.iam.gserviceaccount.com` — allows CI/CD to deploy a model using the serving identity.
+- `lab5-pipeline@itcs355-6688176.iam.gserviceaccount.com` — allows the managed pipeline to deploy a model using the serving identity.
+
+These permissions are scoped to the Lab 5 serving service account rather than the entire project.

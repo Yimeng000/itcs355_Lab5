@@ -116,6 +116,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
@@ -168,6 +172,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
@@ -220,6 +228,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
@@ -271,6 +283,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
@@ -322,6 +338,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"
@@ -375,6 +395,10 @@
             {
               "name": "SERVING_IMAGE_URI",
               "value": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-serve@sha256:fdff9261412ca447212c78defa1e442c717266c8e4cc1cf94e6f8d79322e0207"
+            },
+            {
+              "name": "SERVING_SERVICE_ACCOUNT",
+              "value": "lab5-serving@itcs355-6688176.iam.gserviceaccount.com"
             }
           ],
           "image": "asia-southeast1-docker.pkg.dev/itcs355-6688176/itcs355/itcs355-lab5@sha256:ffc2c83b10a0df94495240ad45b20822c66b9bbe53a64de92fee15f52dc47728"

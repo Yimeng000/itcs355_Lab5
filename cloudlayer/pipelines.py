@@ -94,6 +94,7 @@ def compile_gcp(spec: dict[str, Any]):
         "IDENTITY_REF": cfg.identity_ref,
         "TRAINING_IMAGE_URI": cfg.training_image_uri,
         "SERVING_IMAGE_URI": cfg.serving_image_uri,
+        "SERVING_SERVICE_ACCOUNT": cfg.serving_service_account,
     }
 
     def configure_task(task):
