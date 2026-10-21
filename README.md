@@ -247,3 +247,27 @@ To reduce this risk, data contract failures must abort training, and models that
 A fixed schedule does not eliminate data quality risks. Production deployment should also require sufficient validation, meaningful model improvement, and monitoring.
 
 The Vertex AI Schedule remains paused intentionally to control cloud costs.
+
+## Lab 5 Task 4 — Portability Test
+
+### Part A — Portability Audit
+
+`make portability-audit` passed. Provider-specific SDKs and cloud resource references remain outside the application layer.
+
+### Part B — Second Provider: AWS
+
+Implemented `upload`, `download`, and `invoke` in `cloudlayer/aws.py`, using Amazon S3 and SageMaker Runtime.
+
+Three local tests passed: S3 upload/download with Moto, SageMaker invocation using a mocked client, and adapter selection using the provider factory. A separate configuration test confirmed that an AWS environment file selects `AwsAdapter` without changes to application code.
+
+These tests validate the adapter logic in a simulated environment. They do not demonstrate successful execution against live AWS infrastructure. The original `make swap-check SECOND=aws` has not passed against real AWS resources.
+
+### Part C — Portability Analysis
+
+The hardest method to port was `invoke`. Although both Vertex AI and SageMaker accept prediction requests, they use different endpoint identifiers, request APIs, response formats, and authentication mechanisms. The adapter can normalize JSON requests and responses, but it cannot guarantee that independently deployed models accept identical input schemas.
+
+The abstraction genuinely leaks at the configuration and infrastructure boundary. Changing only `CLOUD_PROVIDER` does not turn a GCS URI into an S3 URI or a Vertex AI endpoint into a SageMaker endpoint. The provided swap-check exposed this limitation because it changes the provider while retaining the original configuration. These resources must be provisioned and mapped separately for each platform.
+
+A complete GCP-to-AWS migration would take approximately 5–10 engineering days for a small system with an available AWS account, assuming no major model compatibility problems. This estimate includes IAM, S3, ECR, SageMaker training and serving, CI/CD, monitoring, integration testing, and cleanup. Production security and reliability requirements could extend that timeline.
+
+The abstraction was worthwhile for storage operations and basic prediction calls because the application can retain a stable interface. However, it did not make the infrastructure portable automatically. Maintaining adapters, credentials, configurations, and platform-specific tests adds complexity. For a system expected to remain on one cloud indefinitely, deliberate provider lock-in could be more economical.

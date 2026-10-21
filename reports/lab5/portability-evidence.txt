@@ -1,0 +1,34 @@
+Lab 5 Task 4 — Portability Test Evidence
+
+Part A — Portability Audit
+Command: make portability-audit
+Result: PASS
+Provider-specific references not found in audited application directories.
+
+Part B — AWS Adapter
+Implemented methods:
+- upload(): Amazon S3
+- download(): Amazon S3
+- invoke(): Amazon SageMaker Runtime
+
+Local test command:
+python -m pytest -q cloudlayer/test_aws_portability.py
+
+Result: 3 passed
+
+Test coverage:
+- S3 upload and download using Moto
+- SageMaker invoke using a mocked client
+- GCP/AWS adapter selection through get_adapter()
+
+Configuration test:
+Temporary AWS environment file loaded through SECRET_STORE_PATH.
+Result: PASS — AwsAdapter selected.
+
+Limitations:
+Tests used simulated AWS resources.
+No real AWS account, S3 bucket, or SageMaker endpoint was used.
+The original make swap-check SECOND=aws has not been verified successfully.
+
+Part C — Portability Analysis
+Documented in README.md.

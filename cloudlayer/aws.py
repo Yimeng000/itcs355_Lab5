@@ -21,13 +21,64 @@ from cloudlayer.base import CloudAdapter
 
 class AwsAdapter(CloudAdapter):
     def upload(self, local_path: str, key: str) -> str:
-        raise NotImplementedError("TODO Lab 1: put_object into BLOB_URI, return the s3:// URI")
+        import boto3
+        from urllib.parse import urlsplit
+
+        parsed = urlsplit(self.cfg.blob_uri)
+        if parsed.scheme != "s3" or not parsed.netloc:
+            raise ValueError("AWS BLOB_URI must use s3://bucket/prefix")
+
+        bucket = parsed.netloc
+        prefix = parsed.path.strip("/")
+        object_key = "/".join(
+            part for part in (prefix, key.lstrip("/")) if part
+        )
+        if not object_key:
+            raise ValueError("S3 object key must not be empty")
+
+        boto3.client("s3", region_name=self.cfg.region).upload_file(
+            local_path, bucket, object_key
+        )
+        return f"s3://{bucket}/{object_key}"
 
     def download(self, uri: str, local_path: str) -> None:
-        raise NotImplementedError("TODO Lab 1: download_file, creating parent directories")
+        import boto3
+        from pathlib import Path
+        from urllib.parse import urlsplit
+
+        parsed = urlsplit(uri)
+        if parsed.scheme != "s3" or not parsed.netloc or not parsed.path.strip("/"):
+            raise ValueError("AWS download URI must use s3://bucket/object")
+
+        Path(local_path).parent.mkdir(parents=True, exist_ok=True)
+        boto3.client("s3", region_name=self.cfg.region).download_file(
+            parsed.netloc, parsed.path.lstrip("/"), local_path
+        )
 
     def push_image(self, local_tag: str) -> str:
         raise NotImplementedError("TODO Lab 1: authenticate to ECR, push, return repo@sha256:...")
+
+    def invoke(self, endpoint: str, payload: dict) -> dict:
+        import json
+        import boto3
+
+        client = boto3.client(
+            "sagemaker-runtime",
+            region_name=self.cfg.region,
+        )
+
+        response = client.invoke_endpoint(
+            EndpointName=endpoint,
+            ContentType="application/json",
+            Accept="application/json",
+            Body=json.dumps(payload).encode("utf-8"),
+        )
+
+        result = json.loads(response["Body"].read().decode("utf-8"))
+        if not isinstance(result, dict):
+            raise ValueError("Expected a JSON object from SageMaker endpoint")
+
+        return result
 
     # submit_training / register_model  -> Lab 2 (SageMaker training job + model package group)
     # deploy / invoke                   -> Lab 3 (SageMaker real-time endpoint)
