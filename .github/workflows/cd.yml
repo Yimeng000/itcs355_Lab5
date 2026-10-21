@@ -123,5 +123,9 @@ jobs:
                 --deployed-model-id="$DEPLOYED_MODEL_ID" \
                 --quiet
             done
+            gcloud ai endpoints delete "$ENDPOINT_ID" \
+              --region="${{ vars.REGION }}" \
+              --project="itcs355-6688176" \
+              --quiet
           done
           
