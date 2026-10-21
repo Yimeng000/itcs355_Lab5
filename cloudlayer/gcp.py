@@ -184,7 +184,7 @@ class GcpAdapter(CloudAdapter):
             project=self.cfg.project_id,
             location=self.cfg.region,
         )
-    
+
         models = aiplatform.Model.list(
             filter=f'display_name="{name}"',
         )
@@ -206,6 +206,11 @@ class GcpAdapter(CloudAdapter):
         return f"{artifact_uri.rstrip('/')}/model.joblib"
 
     def deploy(self, model_ref: str, endpoint: str, instance: str) -> str:
+        if not self.cfg.serving_service_account:
+            raise ValueError(
+                "SERVING_SERVICE_ACCOUNT is required for deployment"
+            )
+
         aiplatform.init(
             project=self.cfg.project_id,
             location=self.cfg.region,
@@ -228,7 +233,7 @@ class GcpAdapter(CloudAdapter):
                 labels=self.cfg.tags(5),
                 sync=True,
             )
-    
+
         models = aiplatform.Model.list(
          filter=f'display_name="{self.cfg.model_registry_name}"',
         )
@@ -283,6 +288,7 @@ class GcpAdapter(CloudAdapter):
             model=serving_model,
             deployed_model_display_name=f"{endpoint}-v{model_ref}",
             machine_type=instance,
+            service_account=self.cfg.serving_service_account,
             min_replica_count=1,
             max_replica_count=1,
             traffic_percentage=100,

@@ -53,6 +53,7 @@ class Config:
     identity_ref: str
     training_image_uri: str
     serving_image_uri: str
+    serving_service_account: str
     data_dir: Path = field(default=REPO_ROOT / "data")
     reports_dir: Path = field(default=REPO_ROOT / "reports")
 
@@ -84,4 +85,5 @@ def load(strict: bool = True) -> Config:
         identity_ref=get("IDENTITY_REF", ""),
         training_image_uri=get("TRAINING_IMAGE_URI", ""),
         serving_image_uri=get("SERVING_IMAGE_URI", ""),
+        serving_service_account=get("SERVING_SERVICE_ACCOUNT", ""),
     )

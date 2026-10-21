@@ -165,3 +165,33 @@ Postmortem:
 3. Detection latency was approximately 109 seconds from injection to the first alert.
 4. Cloud Monitoring triggered the configured email notification successfully.
 5. Before retraining, the team should confirm whether the shift is genuine production drift or an upstream data-quality problem.
+
+## Lab 5 Task 2 — Least Privilege IAM
+
+Three service accounts separate training, serving, and CI/CD responsibilities.
+
+| Identity | Service Account | IAM Roles | Purpose |
+|---|---|---|---|
+| Training | `lab5-pipeline@itcs355-6688176.iam.gserviceaccount.com` | `roles/aiplatform.user`, `roles/monitoring.metricWriter`, bucket-level `roles/storage.objectUser` | Run training operations, read training data, save model artifacts and checkpoints, and publish metrics. |
+| Serving | `lab5-serving@itcs355-6688176.iam.gserviceaccount.com` | Bucket-level `roles/storage.objectViewer` | Read model artifacts without object modification or deletion permissions. |
+| CI/CD | `github-actions@itcs355-6688176.iam.gserviceaccount.com` | `roles/aiplatform.user`, `roles/artifactregistry.writer`, `roles/monitoring.metricWriter`, `roles/iam.serviceAccountUser` on `lab5-serving` | Push container images, perform Vertex AI operations, and deploy with the dedicated serving identity. |
+
+### Permission Removal Experiment
+
+**Objective:** Verify that removing the serving identity's object-read permission prevents access to model artifacts.
+
+**Test object:** `gs://itcs355-6688176/itcs355/lab5/model-version.txt`
+
+**Procedure and results:**
+
+1. Temporarily granted the test operator `roles/iam.serviceAccountTokenCreator` on `lab5-serving` to enable service account impersonation.
+2. Read the test object as `lab5-serving`. The command succeeded with exit code `0`.
+3. Removed `roles/storage.objectViewer` from `lab5-serving` at the bucket level.
+4. Repeated the object-read operation using the same serving identity.
+5. Observed `HTTPError 403`, with `Permission 'storage.objects.get' denied`.
+6. Restored the original bucket-level `roles/storage.objectViewer` permission.
+7. Removed the test operator's temporary `roles/iam.serviceAccountTokenCreator` permission.
+
+**Conclusion:** Removing the serving identity's object-read permission caused the artifact access operation to fail. The experiment demonstrates an enforced IAM permission boundary. The original serving permission was restored after testing.
+
+**Scope note:** The IAM roles above are the observed configuration. Further privilege reduction may be possible, particularly for the broad `roles/aiplatform.user` role. The serving identity's object-read permission is scoped to the project bucket rather than exclusively to the Lab 5 object prefix.

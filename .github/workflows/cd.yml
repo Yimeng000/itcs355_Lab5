@@ -81,9 +81,10 @@ jobs:
           MODEL_REGISTRY_NAME: itcs355-6688176
           IDENTITY_REF: serviceAccount:${{ secrets.GCP_DEPLOY_SA }}
           SERVING_IMAGE_URI: ${{ steps.push.outputs.image_uri }}
+          SERVING_SERVICE_ACCOUNT: lab5-serving@itcs355-6688176.iam.gserviceaccount.com
         run: |
           set -o pipefail
-          ENDPOINT_RESOURCE=$(python -c "from src import config; from cloudlayer.factory import get_adapter; cfg=config.load(); print(get_adapter(cfg).deploy('1','itcs355-lab4-staging','n1-standard-2'))" | tail -n 1)
+          ENDPOINT_RESOURCE=$(python -c "from src import config; from cloudlayer.factory import get_adapter; cfg=config.load(); print(get_adapter(cfg).deploy('1','itcs355-lab5-cd-staging','n1-standard-2'))" | tail -n 1)
           echo "endpoint_resource=$ENDPOINT_RESOURCE" >> "$GITHUB_OUTPUT"
           echo "$ENDPOINT_RESOURCE"
 
@@ -106,7 +107,7 @@ jobs:
           ENDPOINT_IDS=$(gcloud ai endpoints list \
             --region="${{ vars.REGION }}" \
             --project="itcs355-6688176" \
-            --filter='displayName="itcs355-lab4-staging"' \
+            --filter='displayName="itcs355-lab5-cd-staging"' \
             --format="value(name.basename())")
 
           for ENDPOINT_ID in $ENDPOINT_IDS; do
