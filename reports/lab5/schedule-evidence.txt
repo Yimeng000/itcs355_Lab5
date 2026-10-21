@@ -1,0 +1,19 @@
+Lab 5 Task 3 — Vertex AI Scheduled Retraining
+
+Project: itcs355-6688176
+Region: asia-southeast1
+Schedule ID: 8918820510100357120
+Schedule name: itcs355-lab5-weekly-retraining
+
+Cron: CRON_TZ=Asia/Bangkok 0 2 * * 0
+Frequency: Every Sunday at 02:00 (ICT)
+Execution identity: lab5-pipeline@itcs355-6688176.iam.gserviceaccount.com
+Maximum scheduled runs: 1
+Maximum concurrent runs: 1
+
+Schedule creation: SUCCESS
+Pause request: SUCCESS
+Console status checked: PAUSED
+
+Scheduled executions: Not yet demonstrated.
+Reason for pause: Prevent unintended cloud training costs.

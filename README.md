@@ -207,3 +207,43 @@ The `roles/iam.serviceAccountUser` role is granted on this service account to:
 - `lab5-pipeline@itcs355-6688176.iam.gserviceaccount.com` — allows the managed pipeline to deploy a model using the serving identity.
 
 These permissions are scoped to the Lab 5 serving service account rather than the entire project.
+
+## Lab 5 Task 3 — Scheduled Retraining
+
+### Pipeline Schedule
+
+A managed Vertex AI Pipeline Schedule was created for the machine failure prediction system.
+
+| Setting | Configuration |
+|---|---|
+| Platform | Google Cloud Vertex AI Pipelines |
+| Schedule | `CRON_TZ=Asia/Bangkok 0 2 * * 0` |
+| Frequency | Every Sunday at 02:00 (Thailand time) |
+| Execution identity | `lab5-pipeline@itcs355-6688176.iam.gserviceaccount.com` |
+| Maximum scheduled runs | 1 |
+| Maximum concurrent runs | 1 |
+| Schedule status | Paused to prevent unintended cloud costs |
+
+The schedule was configured with a future start time and paused after creation. Its configuration has been verified, but no scheduled execution has been demonstrated.
+
+### Retraining Strategy Comparison
+
+| Strategy | When it is right for our system | How it fails |
+|---|---|---|
+| Fixed schedule | Weekly retraining provides predictable updates for the machine failure prediction model and allows compute costs to be planned. | Training may be unnecessary when sensor distributions remain stable, or too infrequent if equipment behavior changes rapidly. |
+| Data volume threshold | Retrain when enough new sensor observations from machines have accumulated to provide meaningful training data. | Large amounts of duplicated, noisy, or unrepresentative sensor data may trigger unnecessary retraining. |
+| Drift-triggered | Retrain when monitored sensor distributions or prediction performance show meaningful changes. | Sensor failures or corrupted upstream data may create false drift alerts and trigger training on invalid data. |
+
+### Selected Strategy and Worst-Case Scenario
+
+We selected weekly fixed-schedule retraining because it is predictable, easy to audit, and limits unnecessary training frequency.
+
+Each run must validate the incoming dataset before training. The evaluation gate uses a minimum test ROC AUC of 0.75 and blocks registration when the candidate fails the threshold. When an incumbent score is explicitly supplied, the candidate must also exceed it by at least 0.002.
+
+The worst-case scenario is corrupted sensor data entering the training pipeline. A drift-based trigger could interpret the corruption as a significant distribution shift, automatically retrain a degraded model, and replace a previously reliable model.
+
+To reduce this risk, data contract failures must abort training, and models that fail the evaluation gate must not be registered or deployed.
+
+A fixed schedule does not eliminate data quality risks. Production deployment should also require sufficient validation, meaningful model improvement, and monitoring.
+
+The Vertex AI Schedule remains paused intentionally to control cloud costs.
