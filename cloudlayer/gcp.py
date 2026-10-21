@@ -86,7 +86,7 @@ class GcpAdapter(CloudAdapter):
             container_uri=image_uri,
             command=["python", "-m", "src.train"],
             staging_bucket=f"gs://{self.cfg.project_id}",
-            labels=self.cfg.tags(2),
+            labels=self.cfg.tags(5),
         )
 
         job.run(
@@ -280,7 +280,7 @@ class GcpAdapter(CloudAdapter):
                 "MODEL_VERSION": str(model_ref),
                 "MODEL_ARTIFACT_URI": f"{artifact_uri.rstrip('/')}/model.joblib",
             },
-            labels=self.cfg.tags(3),
+            labels=self.cfg.tags(5),
             sync=True,
         )
 
