@@ -1,0 +1,5 @@
+PIPELINE_JOB | STATE
+projects/259177885839/locations/asia-southeast1/pipelineJobs/itcs355-training-pipeline-20261021000526 | 4
+projects/259177885839/locations/asia-southeast1/pipelineJobs/itcs355-training-pipeline-20261020223305 | 5
+projects/259177885839/locations/asia-southeast1/pipelineJobs/itcs355-training-pipeline-20261020221550 | 5
+projects/259177885839/locations/asia-southeast1/pipelineJobs/itcs355-training-pipeline-20261020211926 | 5

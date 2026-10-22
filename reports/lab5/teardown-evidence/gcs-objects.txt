@@ -1,0 +1,1 @@
+PASS: No live Lab 5 GCS objects found
