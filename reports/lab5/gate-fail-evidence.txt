@@ -1,0 +1,4 @@
+Gate FAIL decision:
+fail
+KFP condition:
+inputs.parameter_values['pipelinechannel--gate-decision'] == 'pass'

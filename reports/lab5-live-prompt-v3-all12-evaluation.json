@@ -1,0 +1,109 @@
+{
+  "provider": "gcp",
+  "model": "small",
+  "cases": 12,
+  "passed": 12,
+  "pass_rate": 1.0,
+  "p95_latency_ms": 2802,
+  "avg_input_tokens": 445,
+  "avg_output_tokens": 49,
+  "thb_per_1k_requests": 5.4485,
+  "results": [
+    {
+      "id": "triage-001",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 450,
+      "output_tokens": 54,
+      "latency_ms": 3257
+    },
+    {
+      "id": "triage-002",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 449,
+      "output_tokens": 56,
+      "latency_ms": 1858
+    },
+    {
+      "id": "triage-003",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 450,
+      "output_tokens": 60,
+      "latency_ms": 1804
+    },
+    {
+      "id": "triage-004",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 456,
+      "output_tokens": 70,
+      "latency_ms": 1771
+    },
+    {
+      "id": "triage-005",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 441,
+      "output_tokens": 52,
+      "latency_ms": 1847
+    },
+    {
+      "id": "triage-006",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 438,
+      "output_tokens": 36,
+      "latency_ms": 1627
+    },
+    {
+      "id": "triage-007",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 441,
+      "output_tokens": 53,
+      "latency_ms": 2802
+    },
+    {
+      "id": "triage-008",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 442,
+      "output_tokens": 28,
+      "latency_ms": 1835
+    },
+    {
+      "id": "triage-009",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 454,
+      "output_tokens": 60,
+      "latency_ms": 2792
+    },
+    {
+      "id": "triage-010",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 437,
+      "output_tokens": 37,
+      "latency_ms": 1862
+    },
+    {
+      "id": "triage-011",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 445,
+      "output_tokens": 58,
+      "latency_ms": 1878
+    },
+    {
+      "id": "triage-012",
+      "passed": true,
+      "failures": [],
+      "input_tokens": 437,
+      "output_tokens": 28,
+      "latency_ms": 1632
+    }
+  ]
+}

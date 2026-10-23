@@ -198,3 +198,131 @@ Evidence:
 - reports/lab5-output-cap100-gate.json
 - reports/lab5-thinking-token-check.json
 - src/llmcost.py
+
+---
+
+## 8. Three Required Token-Cost Figures and Budget Defence
+
+### 8.1 THB per 1,000 Requests
+
+The Gemini API reported the following usage across 12 real requests:
+
+| Metric | Value |
+|---|---:|
+| Total input tokens | 5,340 |
+| Total candidate output tokens | 592 |
+| Average input tokens per request | 445 |
+| Average candidate output tokens per request | 49.33 |
+| Golden Set result | 12/12 PASS |
+
+Using illustrative pricing assumptions:
+
+- Input price: USD 0.30 per 1 million tokens
+- Output price: USD 2.50 per 1 million tokens
+- Illustrative exchange rate: 35 THB per USD
+
+Calculations:
+
+Input cost:
+
+5,340 × 0.30 / 1,000,000 = USD 0.001602
+
+Output cost:
+
+592 × 2.50 / 1,000,000 = USD 0.001480
+
+Total cost for 12 requests:
+
+0.001602 + 0.001480 = USD 0.003082
+
+Cost per 1,000 requests:
+
+0.003082 / 12 × 1,000 = USD 0.256833
+
+Conversion to THB:
+
+0.256833 × 35 = **8.99 THB per 1,000 requests**
+
+This calculation uses provider-reported token counts, not word-count estimates. However, the token prices and exchange rate are illustrative assumptions rather than verified billing rates. The historical 12-request dataset did not separately record thinking tokens, so this is a preliminary estimate, not a verified invoice amount.
+
+### 8.2 Savings from Reducing max_output_tokens
+
+We reduced max_output_tokens from 200 to 100 and evaluated the same 12 Golden Cases.
+
+| Metric | Before: Cap 200 | After: Cap 100 |
+|---|---:|---:|
+| Candidate output tokens | 592 | 585 |
+| Golden Set passed | 12/12 | 12/12 |
+| p95 latency | 2,802 ms | 2,669 ms |
+| Regression gate | Baseline | PASS |
+
+Output token reduction:
+
+592 - 585 = 7 tokens
+
+Percentage reduction:
+
+7 / 592 × 100 = **1.18%**
+
+Estimated output cost saving across 12 requests:
+
+7 × 2.50 / 1,000,000 = USD 0.0000175
+
+Estimated saving per 1,000 requests:
+
+0.0000175 / 12 × 1,000 = USD 0.001458
+
+Estimated saving in THB:
+
+0.001458 × 35 = **0.0510 THB per 1,000 requests**
+
+Assuming unchanged input usage for this modeled comparison:
+
+- Before: approximately 8.99 THB per 1,000 requests
+- After: approximately 8.94 THB per 1,000 requests
+- Estimated saving: approximately 0.05 THB per 1,000 requests
+
+Both configurations passed the 12-case evaluation gate. Therefore, the lower output cap did not reduce measured Golden Set quality.
+
+However, the observed token saving was small. The lower cap may truncate longer responses in production, which the limited Golden Set cannot rule out.
+
+### 8.3 Prompt Cache Break-even Hit Rate
+
+The course cost model assumes:
+
+- CACHE_READ_FACTOR = 0.10
+- CACHE_WRITE_FACTOR = 1.25
+
+Break-even formula:
+
+(1.25 - 1.00) / (1.25 - 0.10)
+
+= 0.25 / 1.15
+
+= **21.74%**
+
+Measured provider usage:
+
+- Total input tokens: 5,340
+- Cached input tokens: 0
+- Observed cached-token proportion: **0%**
+
+The observed workload did not demonstrate any caching savings.
+
+Because the observed cached-token proportion was below the theoretical break-even threshold, enabling cache writes without sufficient repeated inputs cannot be justified by the current evidence.
+
+The 21.74% break-even rate comes from course-model assumptions, not independently verified Vertex AI caching prices.
+
+### 8.4 Budget Defence
+
+Based on real Gemini token usage and the stated illustrative pricing assumptions, the estimated baseline cost was approximately **8.99 THB per 1,000 requests**. Reducing max_output_tokens from 200 to 100 lowered the modeled cost to approximately **8.94 THB per 1,000 requests**, saving around **0.05 THB per 1,000 requests** while maintaining a 12/12 Golden Set pass rate. The trade-off is the possibility of truncating longer responses, which requires further evaluation before production deployment. Prompt caching was not claimed as an achieved optimisation because the observed cached-token usage was zero. These figures are planning estimates based on recorded provider usage and illustrative prices, not actual billed amounts. Final production budgeting would require verified model pricing, complete billable token accounting, current exchange rates, and reconciliation with Google Cloud Billing.
+
+### 8.5 Limitations
+
+- Token quantities came from actual provider usage fields.
+- The historical 12 requests did not separately record thinking tokens.
+- The USD token rates are illustrative and have not been verified against the applicable billing SKU.
+- The 35 THB/USD exchange rate is an explicit calculation assumption.
+- The output-cap monetary saving is modeled from observed candidate output token differences.
+- No actual caching savings were demonstrated.
+- The original pre-run Lab 5 cost estimate cannot be reconstructed as contemporaneous evidence.

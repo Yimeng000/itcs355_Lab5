@@ -1,0 +1,11 @@
+{
+  "id": "triage-001",
+  "response": "{\n  \"decision\": \"schedule_urgent\",\n  \"rationale\": \"The failure probability is 0.91, which falls within the range of 0.80 to 1.00, requiring an urgent maintenance schedule.\"\n}",
+  "input_tokens": 450,
+  "output_tokens": 54,
+  "thoughts_tokens": 0,
+  "total_tokens": 504,
+  "cached_input_tokens": 0,
+  "latency_ms": 2915,
+  "model": "gemini-3.5-flash-lite"
+}
