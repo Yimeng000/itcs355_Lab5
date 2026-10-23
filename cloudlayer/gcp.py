@@ -26,6 +26,53 @@ from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
 
 
 class GcpAdapter(CloudAdapter):
+    def generate(self, prompt: str, params: dict) -> dict:
+        """Generate text through Vertex AI and return provider-reported usage."""
+        import time
+        from google import genai
+        from google.genai import types
+
+        model = params.get("model", "gemini-3.5-flash-lite")
+        location = params.get("location", "global")
+        max_output_tokens = int(params.get("max_output_tokens", 200))
+
+        client = genai.Client(
+            vertexai=True,
+            project=self.cfg.project_id,
+            location=location,
+        )
+        try:
+            start = time.perf_counter()
+            result = client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    max_output_tokens=max_output_tokens,
+                    temperature=params.get("temperature", 0),
+                    response_mime_type="application/json",
+                ),
+            )
+            latency_ms = round((time.perf_counter() - start) * 1000)
+
+            usage = result.usage_metadata
+            if usage is None:
+                raise RuntimeError("Provider returned no usage metadata")
+
+            return {
+                "response": result.text or "",
+                "input_tokens": int(usage.prompt_token_count or 0),
+                "output_tokens": int(usage.candidates_token_count or 0),
+                "thoughts_tokens": int(usage.thoughts_token_count or 0),
+                "total_tokens": int(usage.total_token_count or 0),
+                "cached_input_tokens": int(
+                    usage.cached_content_token_count or 0
+                ),
+                "latency_ms": latency_ms,
+                "model": model,
+            }
+        finally:
+            client.close()
+
     def upload(self, local_path: str, key: str) -> str:
         blob_uri = self.cfg.blob_uri
         bucket_name, prefix = blob_uri.removeprefix("gs://").split("/", 1)

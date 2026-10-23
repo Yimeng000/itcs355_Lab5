@@ -118,3 +118,83 @@ The available evidence does not establish a before-and-after latency p95 measure
 - No verified pre-run Lab 5 cost estimate was found.
 - Historical billing attribution is limited by inconsistent resource labels.
 - Billing data may be delayed and should be checked again after teardown.
+
+<!-- LAB5_LIVE_EXPERIMENT_FINAL -->
+## 7. LLM Token Cost and Optimisation — 23 October 2026
+
+### Live Usage
+
+Model: gemini-3.5-flash-lite through Vertex AI global.
+Prompt: evals/prompts/triage-v3.txt.
+
+Across 12 real API requests with max_output_tokens=200:
+
+| Metric | Observed |
+|---|---:|
+| Requests | 12 |
+| Input tokens | 5,340 |
+| Candidate output tokens | 592 |
+| Average input tokens/request | 445 |
+| Average output tokens/request | 49.33 |
+| Cached input tokens | 0 |
+| Golden Set pass rate | 12/12 |
+| p95 latency | 2,802 ms |
+
+The original 12 response records did not separately capture thinking
+tokens. A subsequent real verification request recorded 450 input,
+54 candidate output, 0 thinking and 504 total tokens. This validates
+the accounting fields for that request, but does not prove that all
+historical requests had zero thinking tokens.
+
+### Output Cap Comparison
+
+| Metric | Cap 200 | Cap 100 |
+|---|---:|---:|
+| Golden Cases Passed | 12/12 | 12/12 |
+| Total candidate output tokens | 592 | 585 |
+| p95 latency | 2,802 ms | 2,669 ms |
+| Regression gate | Baseline | PASS |
+
+The observed candidate-output reduction was 7 tokens across 12
+requests, approximately 1.18%. Halving the cap did not halve actual
+token usage. Cap 100 was adequate for this fixed sample, but might
+truncate longer outputs on other inputs.
+
+### Prompt Cache Break-even
+
+The course model assumes CACHE_READ_FACTOR=0.10 and
+CACHE_WRITE_FACTOR=1.25, giving a mathematical break-even hit rate of
+21.74%. This is a course-model assumption, not a measured Google Cloud
+caching break-even point.
+
+Actual cached input tokens: 0 of 5,340.
+Observed cache hit rate: 0%.
+No realized caching savings were demonstrated.
+
+### Preliminary Token Cost Estimate
+
+Illustrative rates applied for this calculation:
+- Input: USD 0.30 per million tokens.
+- Output: USD 2.50 per million tokens.
+
+Using the recorded candidate input/output tokens:
+- Estimated sample cost for 12 requests: USD 0.003082.
+- Estimated cost per 1,000 requests: USD 0.256833.
+
+This is a preliminary usage-based calculation, not an actual GCP
+billing charge. Final costing requires verification of the applicable
+Vertex AI billing SKU, pricing date, tier, currency conversion, and
+any historically unrecorded reasoning or other billable usage.
+The teacher's gcp/small rates in src/llmcost.py are sample rates,
+not independently verified rates for this exact model.
+
+These LLM experiments are not represented in the 20–21 October
+project-level billing summary above.
+
+Evidence:
+- reports/lab5-live-prompt-v3-all12.jsonl
+- reports/lab5-live-prompt-v3-all12-evaluation.json
+- reports/lab5-output-cap100-all12.jsonl
+- reports/lab5-output-cap100-gate.json
+- reports/lab5-thinking-token-check.json
+- src/llmcost.py
