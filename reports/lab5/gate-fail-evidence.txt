@@ -1,4 +1,80 @@
-Gate FAIL decision:
-fail
-KFP condition:
+Lab 5 - Managed Pipeline Evaluation Gate Evidence
+
+1. Managed Pipeline Execution
+
+Pipeline Job:
+itcs355-training-pipeline-20261021000526
+
+Result: SUCCEEDED
+
+Recorded tasks:
+- gate: SUCCEEDED
+- condition-1: SUCCEEDED
+- run-step-4: SUCCEEDED
+- run-step-5: SUCCEEDED
+
+2. Compiled KFP Registration Condition
+
+The compiled pipeline contains:
+
 inputs.parameter_values['pipelinechannel--gate-decision'] == 'pass'
+
+The registration and staging deployment tasks are inside
+the conditional component comp-condition-1.
+
+Registration is therefore conditional on the gate decision.
+
+3. Offline Gate Test - Weak Candidate
+
+Candidate test_roc_auc: 0.70
+Absolute threshold: 0.75
+
+Result:
+GATE FAIL - below absolute floor 0.75
+
+Exit code: 1
+
+4. Offline Gate Test - Strong Candidate
+
+Candidate test_roc_auc: 0.85
+Absolute threshold: 0.75
+
+Result:
+GATE PASS
+
+Exit code: 0
+
+5. Offline Gate Test - Incumbent Comparison
+
+Candidate test_roc_auc: 0.85
+Incumbent test_roc_auc: 0.90
+Required absolute improvement: 0.002
+
+Result:
+GATE FAIL - improvement within noise; not registering
+
+Exit code: 1
+
+6. Acceptance Criteria Assessment
+
+The evaluation gate implements an absolute ROC-AUC threshold.
+It also supports comparison against an explicitly supplied
+incumbent score.
+
+The managed pipeline uses the absolute threshold as its
+automatic registration criterion.
+
+Registration and staging deployment are contained inside a
+compiled KFP conditional branch requiring decision == pass.
+
+Limitations:
+- The managed pipeline does not automatically fetch the
+  incumbent metric from Vertex AI Model Registry.
+- The weak-candidate and incumbent tests were executed
+  locally, not as Vertex AI Pipeline runs.
+- A real managed pipeline execution with a failing gate
+  and skipped registration has not been demonstrated.
+
+The evidence supports a working metric-threshold gate and
+a correctly compiled registration condition. It does not
+claim that every possible production regression is blocked.
